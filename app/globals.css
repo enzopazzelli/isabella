@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== BASE ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-lato), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== SCROLLBAR MINIMAL ===== */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #999;
+  }
+}
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  html {
+    scrollbar-width: none;
+  }
+}
+
+/* ===== MARQUEE (PromoBar) ===== */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+.animate-marquee-slow {
+  animation: marquee 50s linear infinite;
+}
+.animate-marquee-slow:hover {
+  animation-play-state: paused;
+}
+
+/* ===== SCROLL REVEAL ===== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== FADE IN ===== */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== CROSSFADE (Hero) ===== */
+.hero-slide {
+  transition: opacity 1.2s ease-in-out;
+}
+
+/* ===== SCALE IN (Modals) ===== */
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== SLIDE IN (Carrito, Menu) ===== */
+.animate-slide-in-right {
+  animation: slideInRight 0.35s ease-out;
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ===== MENU LINKS STAGGER ===== */
+.menu-link-enter {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: menuLinkIn 0.4s ease-out forwards;
+}
+@keyframes menuLinkIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== IMAGE HOVER ZOOM ===== */
+.img-zoom {
+  transition: transform 0.6s ease;
+}
+.group:hover .img-zoom {
+  transform: scale(1.05);
+}
+
+/* ===== HERO PROGRESS BAR ===== */
+@keyframes progressFill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.hero-progress-active .hero-progress-bar {
+  animation: progressFill 5.5s linear forwards;
+}
+
+/* ===== BODY LOCK (when modal/cart open) ===== */
+body.overflow-hidden {
+  overflow: hidden;
+}
+
+/* ===== ADMIN DARK MODE ===== */
+.dark-admin .bg-white,
+.dark-admin > div > .bg-white {
+  background-color: #222 !important;
+  color: #e0e0e0 !important;
+}
+.dark-admin .border-border,
+.dark-admin .border-b.border-border {
+  border-color: #3a3a3a !important;
+}
+.dark-admin input,
+.dark-admin textarea,
+.dark-admin select {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+.dark-admin input::placeholder,
+.dark-admin textarea::placeholder {
+  color: #777 !important;
+}
+.dark-admin .text-primary {
+  color: #e0e0e0 !important;
+}
+.dark-admin .text-secondary,
+.dark-admin .text-muted {
+  color: #999 !important;
+}
+.dark-admin .bg-light,
+.dark-admin .bg-light\/50,
+.dark-admin .bg-light\/30 {
+  background-color: #1e1e1e !important;
+}
+.dark-admin .divide-border > * + * {
+  border-color: #3a3a3a !important;
+}
+.dark-admin .border-sale\/30 {
+  border-color: rgba(220, 53, 69, 0.3) !important;
+}
