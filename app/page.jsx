@@ -35,6 +35,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedBrand, setSelectedBrand] = useState(null)
+  const [darkMode, setDarkMode] = useState(false)
 
   // Load data from API
   useEffect(() => {
@@ -55,6 +56,21 @@ export default function HomePage() {
       testimonios: validArray(getStoreItem('testimonios')),
       promos: validArray(getStoreItem('promos')),
       marcas: validArray(getStoreItem('marcas')),
+      instagramPhotos: validArray(getStoreItem('instagram_photos')),
+    })
+  }, [])
+
+  // Load dark mode preference
+  useEffect(() => {
+    const saved = localStorage.getItem('isabella_theme')
+    if (saved === 'dark') setDarkMode(true)
+  }, [])
+
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => {
+      const next = !prev
+      localStorage.setItem('isabella_theme', next ? 'dark' : 'light')
+      return next
     })
   }, [])
 
@@ -77,7 +93,7 @@ export default function HomePage() {
   const productos = adminOverrides.productos || data?.productos || defaultProductos
   const testimonios = adminOverrides.testimonios || data?.testimonios || defaultTestimonios
   const banners = adminOverrides.banners || data?.banners || defaultBanners
-  const instagramPhotos = data?.instagramPhotos || defaultInstagramPhotos
+  const instagramPhotos = adminOverrides.instagramPhotos || data?.instagramPhotos || defaultInstagramPhotos
   const marcas = adminOverrides.marcas || data?.marcas || defaultMarcas
   const promos = adminOverrides.promos
     || (data?.config?.promos ? String(data.config.promos).split('|').map(s => s.trim()) : null)
@@ -157,13 +173,15 @@ export default function HomePage() {
   }, [])
 
   return (
-    <>
+    <div className={darkMode ? 'dark-landing' : ''}>
       <PromoBar promos={promos} />
       <Navbar
         cartCount={cartCount}
         onCartClick={() => setCartOpen(true)}
         onSearch={setSearchQuery}
         categorias={categorias}
+        darkMode={darkMode}
+        onToggleDark={toggleDarkMode}
       />
       <Hero slides={heroSlides} />
       <CategoryBlocks blocks={categoryBlocks} onCategoryClick={handleCategoryClick} />
@@ -207,6 +225,6 @@ export default function HomePage() {
         onChangeTalle={handleChangeTalle}
         onClear={handleClearCart}
       />
-    </>
+    </div>
   )
 }

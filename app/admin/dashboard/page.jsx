@@ -22,6 +22,7 @@ import BannerManager from '@/components/admin/BannerManager'
 import ProductoManager from '@/components/admin/ProductoManager'
 import PromoManager from '@/components/admin/PromoManager'
 import TestimonioManager from '@/components/admin/TestimonioManager'
+import InstagramManager from '@/components/admin/InstagramManager'
 import ConfigManager from '@/components/admin/ConfigManager'
 import PedidosManager from '@/components/admin/PedidosManager'
 
@@ -49,6 +50,7 @@ export default function AdminDashboard() {
   const [productos, setProductos] = useState([])
   const [testimonios, setTestimonios] = useState([])
   const [promos, setPromos] = useState([])
+  const [instagramPhotos, setInstagramPhotos] = useState([])
 
   useEffect(() => {
     const saved = localStorage.getItem('isabella_admin_auth')
@@ -72,6 +74,7 @@ export default function AdminDashboard() {
     setProductos(getStoreItem('productos') || defaultProductos)
     setTestimonios(getStoreItem('testimonios') || defaultTestimonios)
     setPromos(getStoreItem('promos') || defaultPromos)
+    setInstagramPhotos(getStoreItem('instagram_photos') || defaultInstagramPhotos)
   }, [authed])
 
   // Persist helpers
@@ -82,6 +85,7 @@ export default function AdminDashboard() {
   const saveProductos = (p) => { setProductos(p); setStoreItem('productos', p) }
   const saveTestimonios = (t) => { setTestimonios(t); setStoreItem('testimonios', t) }
   const savePromos = (p) => { setPromos(p); setStoreItem('promos', p) }
+  const saveInstagram = (ig) => { setInstagramPhotos(ig); setStoreItem('instagram_photos', ig) }
 
   const handleLogin = (e) => {
     e.preventDefault()
@@ -207,6 +211,7 @@ export default function AdminDashboard() {
             <CategoryManager blocks={categoryBlocks} onSave={saveCategories} />
             <BrandManager marcas={marcas} onSave={saveMarcas} />
             <BannerManager banners={banners} onSave={saveBanners} />
+            <InstagramManager photos={instagramPhotos} onSave={saveInstagram} />
           </div>
         )}
 

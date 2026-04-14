@@ -166,3 +166,107 @@ body.overflow-hidden {
 .dark-admin .border-sale\/30 {
   border-color: rgba(220, 53, 69, 0.3) !important;
 }
+
+/* ===== LANDING DARK MODE ===== */
+.dark-landing {
+  background-color: #0f0f0f;
+  color: #e0e0e0;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Sections with white/light backgrounds */
+.dark-landing section,
+.dark-landing .bg-white {
+  background-color: #0f0f0f !important;
+  color: #e0e0e0 !important;
+}
+.dark-landing .bg-light {
+  background-color: #1a1a1a !important;
+}
+
+/* Borders */
+.dark-landing .border-border,
+.dark-landing .border-b.border-border,
+.dark-landing .border-y {
+  border-color: #2a2a2a !important;
+}
+
+/* Text */
+.dark-landing .text-primary {
+  color: #e8e8e8 !important;
+}
+.dark-landing .text-secondary {
+  color: #999 !important;
+}
+.dark-landing .text-muted {
+  color: #666 !important;
+}
+
+/* Product cards */
+.dark-landing .bg-light,
+.dark-landing .bg-gradient-to-br {
+  background: #1a1a1a !important;
+}
+
+/* Filter bar, buttons, pills */
+.dark-landing .bg-white.text-primary.border-border {
+  background-color: #1a1a1a !important;
+  border-color: #333 !important;
+  color: #ccc !important;
+}
+.dark-landing select,
+.dark-landing input[type="text"] {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  border-color: #333 !important;
+}
+.dark-landing select option {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* Brands carousel */
+.dark-landing .from-white {
+  --tw-gradient-from: #0f0f0f !important;
+}
+.dark-landing .to-transparent {
+  --tw-gradient-to: transparent !important;
+}
+
+/* QuickView Modal + Cart Panel */
+.dark-landing .fixed .bg-white,
+.dark-landing .fixed .relative.bg-white {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+.dark-landing .fixed .border-border {
+  border-color: #2a2a2a !important;
+}
+
+/* Newsletter (already dark bg=primary, skip) */
+/* Footer (already dark bg=primary, skip) */
+/* Hero (images + overlays, skip) */
+/* Category blocks (images + overlays, skip) */
+/* Editorial banners (images + overlays, skip) */
+
+/* Testimonios section */
+.dark-landing .bg-light.scroll-reveal {
+  background-color: #141414 !important;
+}
+
+/* Product card hover overlay buttons */
+.dark-landing .bg-white\/90 {
+  background-color: rgba(26, 26, 26, 0.9) !important;
+}
+
+/* Badges keep their colors */
+
+/* Scrollbar in dark mode (desktop) */
+@media (min-width: 768px) {
+  .dark-landing ::-webkit-scrollbar-thumb {
+    background: #444;
+  }
+  .dark-landing ::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
+}
