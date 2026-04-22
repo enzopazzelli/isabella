@@ -34,6 +34,7 @@ export default function HomePage() {
   const [quickViewProduct, setQuickViewProduct] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedSeccion, setSelectedSeccion] = useState(null)
   const [selectedBrand, setSelectedBrand] = useState(null)
   const [darkMode, setDarkMode] = useState(false)
 
@@ -44,6 +45,42 @@ export default function HomePage() {
       .then((d) => setData(d))
       .catch(() => setData(null))
   }, [])
+
+  // Read URL search params on mount (seccion, categoria, marca)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const seccion = params.get('seccion')
+    const categoria = params.get('categoria')
+    const marca = params.get('marca')
+    if (seccion) setSelectedSeccion(seccion)
+    if (categoria) setSelectedCategory(categoria)
+    if (marca) setSelectedBrand(marca)
+
+    // React to back/forward navigation
+    const handlePop = () => {
+      const p = new URLSearchParams(window.location.search)
+      setSelectedSeccion(p.get('seccion'))
+      setSelectedCategory(p.get('categoria'))
+      setSelectedBrand(p.get('marca'))
+    }
+    window.addEventListener('popstate', handlePop)
+    return () => window.removeEventListener('popstate', handlePop)
+  }, [])
+
+  // Sync selected filters to URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (selectedSeccion) params.set('seccion', selectedSeccion); else params.delete('seccion')
+    if (selectedCategory) params.set('categoria', selectedCategory); else params.delete('categoria')
+    if (selectedBrand) params.set('marca', selectedBrand); else params.delete('marca')
+    const qs = params.toString()
+    const newUrl = `${window.location.pathname}${qs ? '?' + qs : ''}${window.location.hash}`
+    if (newUrl !== window.location.pathname + window.location.search + window.location.hash) {
+      window.history.replaceState({}, '', newUrl)
+    }
+  }, [selectedSeccion, selectedCategory, selectedBrand])
 
   // Load admin overrides from localStorage (only use if valid arrays with content)
   useEffect(() => {
@@ -107,21 +144,25 @@ export default function HomePage() {
 
   const cartCount = cart.reduce((sum, item) => sum + item.cantidad, 0)
 
-  const handleAddToCart = useCallback((producto, talle, cantidad, openCart = false) => {
+  const handleAddToCart = useCallback((producto, talle, cantidad, openCart = false, color = null) => {
     setCart((prev) => {
-      const existing = prev.findIndex(i => i.id === producto.id && i.talle === talle)
+      const existing = prev.findIndex(i => i.id === producto.id && i.talle === talle && (i.color || null) === color)
       if (existing >= 0) {
         const updated = [...prev]
         updated[existing] = { ...updated[existing], cantidad: updated[existing].cantidad + cantidad }
         return updated
       }
+      // Resolve display image: use the color's image if set
+      const colorObj = color && producto.colores ? producto.colores.find(c => c.nombre === color) : null
+      const cartImage = colorObj ? colorObj.imagen : (producto.imagenes?.[0] || null)
       return [...prev, {
         id: producto.id,
         nombre: producto.nombre,
         precio: producto.precio,
         talle,
         cantidad,
-        imagenes: producto.imagenes,
+        color,
+        imagenes: cartImage ? [cartImage] : producto.imagenes,
         tallesDisponibles: producto.talles,
       }]
     })
@@ -143,7 +184,7 @@ export default function HomePage() {
   const handleChangeTalle = useCallback((index, newTalle) => {
     setCart((prev) => {
       const item = prev[index]
-      const existingIdx = prev.findIndex((i, idx) => idx !== index && i.id === item.id && i.talle === newTalle)
+      const existingIdx = prev.findIndex((i, idx) => idx !== index && i.id === item.id && i.talle === newTalle && (i.color || null) === (item.color || null))
       if (existingIdx >= 0) {
         // Merge into existing
         const updated = [...prev]
@@ -193,10 +234,12 @@ export default function HomePage() {
         productos={productos}
         searchQuery={searchQuery}
         initialCategory={selectedCategory}
+        initialSeccion={selectedSeccion}
         activeBrand={selectedBrand}
         onClearBrand={() => setSelectedBrand(null)}
+        onSeccionChange={setSelectedSeccion}
+        onCategoryChange={setSelectedCategory}
         onQuickView={setQuickViewProduct}
-        onAddToCart={handleAddToCart}
       />
 
       {midBanners.map((b) => <EditorialBanner key={b.id} banner={b} />)}

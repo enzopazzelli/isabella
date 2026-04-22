@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Minus, Plus, ShoppingBag, MessageCircle } from 'lucide-react'
+import { X, Minus, Plus, ShoppingBag, MessageCircle, CreditCard } from 'lucide-react'
 import { negocio } from '@/lib/config'
-import { generateOrderId, saveOrder } from '@/lib/orders'
+import { generateOrderId, saveOrder, postOrderRemote } from '@/lib/orders'
 import SizeGuideLink from '@/components/ui/SizeGuideLink'
 
 export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem, onRemoveItem, onChangeTalle, onClear }) {
@@ -44,6 +44,7 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
         id: i.id,
         nombre: i.nombre,
         talle: i.talle,
+        color: i.color || null,
         precio: i.precio,
         cantidad: i.cantidad,
       })),
@@ -52,6 +53,7 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     }
 
     saveOrder(order)
+    postOrderRemote(order)
 
     let msg = `Hola! Quiero hacer un pedido:\n\n`
     msg += `Pedido: ${orderId}\n`
@@ -59,6 +61,7 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     msg += `\n`
     items.forEach(item => {
       msg += `- ${item.nombre}`
+      if (item.color) msg += ` — ${item.color}`
       if (item.talle && item.talle !== 'Unico') msg += ` (Talle: ${item.talle})`
       msg += ` x${item.cantidad} — ${formatPrice(item.precio * item.cantidad)}\n`
     })
@@ -100,7 +103,13 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
               Tu carrito esta vacio
             </p>
             <button
-              onClick={onClose}
+              onClick={() => {
+                onClose()
+                setTimeout(() => {
+                  const el = document.getElementById('productos')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }, 100)
+              }}
               className="border border-primary text-primary font-display text-xs uppercase tracking-editorial px-6 py-2.5 hover:bg-primary hover:text-white transition-all duration-300"
             >
               VER PRODUCTOS
@@ -158,6 +167,12 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
                 <MessageCircle size={16} strokeWidth={1.5} />
                 FINALIZAR COMPRA POR WHATSAPP
               </button>
+              <div className="flex items-start gap-2 mt-3 px-1">
+                <CreditCard size={14} strokeWidth={1.5} className="text-secondary mt-0.5 flex-shrink-0" />
+                <p className="font-body text-[11px] text-secondary leading-relaxed">
+                  Pagos con tarjeta de credito o debito se reciben unicamente en el local.
+                </p>
+              </div>
             </div>
           </>
         )}
@@ -185,6 +200,9 @@ function CartItem({ item, onUpdate, onRemove, onChangeTalle, formatPrice }) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <h4 className="font-display text-xs uppercase tracking-editorial truncate">{item.nombre}</h4>
+        {item.color && (
+          <p className="font-body text-[11px] text-secondary mt-0.5">Color: {item.color}</p>
+        )}
 
         {/* Talle selector */}
         <div className="relative mt-1">

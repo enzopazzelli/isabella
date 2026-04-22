@@ -2,6 +2,10 @@
 
 import { useState } from 'react'
 
+function slugify(text) {
+  return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 const badgeStyles = {
   NUEVO: 'bg-primary text-white',
   SALE: 'bg-sale text-white',
@@ -9,10 +13,18 @@ const badgeStyles = {
   AGOTADO: 'bg-secondary text-white',
 }
 
-export default function ProductCard({ producto, onQuickView, onAddToCart }) {
+export default function ProductCard({ producto, onQuickView }) {
   const [hovered, setHovered] = useState(false)
-  const hasImages = producto.imagenes && producto.imagenes.length > 0
-  const hasMultipleImages = producto.imagenes && producto.imagenes.length > 1
+  const [selectedColor, setSelectedColor] = useState(null)
+  const colores = producto.colores && producto.colores.length > 0 ? producto.colores : []
+
+  // Resolve the displayed image based on selected color
+  const displayImages = selectedColor
+    ? [selectedColor.imagen, ...(producto.imagenes || []).filter(img => img !== selectedColor.imagen)]
+    : producto.imagenes || []
+
+  const hasImages = displayImages.length > 0
+  const hasMultipleImages = displayImages.length > 1
   const hasMultipleTalles = producto.talles && producto.talles.length > 1
   const isOutOfStock = producto.stock <= 0 || producto.disponible === false
   const discount = producto.precioAnterior
@@ -21,16 +33,6 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
 
   const badge = isOutOfStock ? 'AGOTADO' : producto.badge
   const displayBadge = badge === 'SALE' && discount > 0 ? `SALE -${discount}%` : badge
-
-  const handleAdd = (e) => {
-    e.stopPropagation()
-    if (isOutOfStock) return
-    if (hasMultipleTalles) {
-      onQuickView(producto)
-    } else {
-      onAddToCart(producto, producto.talles[0] || 'Unico', 1)
-    }
-  }
 
   const formatPrice = (p) => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p)
@@ -43,7 +45,7 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
   return (
     <div
       className="group cursor-pointer"
-      onClick={() => onQuickView(producto)}
+      onClick={() => onQuickView({ ...producto, _selectedColor: selectedColor })}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -53,7 +55,7 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
           <div className="relative w-full h-full">
             {/* Primary image */}
             <img
-              src={producto.imagenes[0]}
+              src={displayImages[0]}
               alt={producto.nombre}
               className={`w-full h-full object-cover transition-all duration-500 ${
                 hasMultipleImages && hovered ? 'opacity-0' : 'opacity-100'
@@ -62,7 +64,7 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
             {/* Secondary image on hover (crossfade) */}
             {hasMultipleImages && (
               <img
-                src={producto.imagenes[1]}
+                src={displayImages[1]}
                 alt={producto.nombre}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
                   hovered ? 'opacity-100' : 'opacity-0'
@@ -104,17 +106,25 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
           </div>
         )}
 
-        {/* Quick add button (desktop only) */}
-        {!isOutOfStock && (
-          <div className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover:pointer-events-auto hidden md:block">
-            <button
-              onClick={handleAdd}
-              className="w-full bg-white/90 text-primary border border-primary font-display text-[11px] uppercase tracking-editorial py-2.5 hover:bg-primary hover:text-white transition-all duration-300"
-            >
-              {hasMultipleTalles ? 'VER TALLES' : 'AGREGAR'}
-            </button>
+        {/* Color swatches overlaid on image corner */}
+        {colores.length > 0 && (
+          <div className="absolute bottom-3 left-3 z-10 flex gap-1">
+            {colores.map((c) => (
+              <button
+                key={c.nombre}
+                title={c.nombre}
+                onClick={(e) => { e.stopPropagation(); setSelectedColor(selectedColor?.nombre === c.nombre ? null : c) }}
+                className={`w-4 h-4 border transition-all duration-200 ${
+                  selectedColor?.nombre === c.nombre
+                    ? 'border-primary scale-125 ring-1 ring-primary ring-offset-1'
+                    : 'border-white/70 hover:border-primary'
+                }`}
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
           </div>
         )}
+
       </div>
 
       {/* Product info */}
@@ -123,7 +133,13 @@ export default function ProductCard({ producto, onQuickView, onAddToCart }) {
           {producto.categoria}
         </p>
         <h3 className="font-display text-[13px] uppercase tracking-editorial text-primary leading-snug">
-          {producto.nombre}
+          <a
+            href={`/producto/${slugify(producto.nombre) || producto.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:underline"
+          >
+            {producto.nombre}
+          </a>
         </h3>
         <div className="flex items-baseline gap-2">
           <span className="font-body text-sm text-primary font-medium">

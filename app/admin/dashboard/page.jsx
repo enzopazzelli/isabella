@@ -5,6 +5,7 @@ import { ExternalLink, RefreshCw, LogOut, Eye, ArrowLeft, Sun, Moon } from 'luci
 import { adminPassword } from '@/lib/config'
 import { getSheetEditUrl } from '@/lib/admin'
 import { getStoreItem, setStoreItem } from '@/lib/store'
+import { syncEntity, setAdminPass, clearAdminPass } from '@/lib/sync'
 import {
   defaultHeroSlides,
   defaultCategoryBlocks,
@@ -57,6 +58,13 @@ export default function AdminDashboard() {
     if (saved === 'true') setAuthed(true)
     const theme = localStorage.getItem('isabella_admin_dark')
     if (theme === 'true') setDarkMode(true)
+    // Restore the pass from session if the tab was kept open.
+    // If sessionStorage is empty (new tab after login persistence), fall
+    // back to the compiled-in adminPassword so sync keeps working.
+    if (typeof window !== 'undefined') {
+      const existing = sessionStorage.getItem('isabella_admin_pass')
+      if (!existing) setAdminPass(adminPassword)
+    }
   }, [])
 
   useEffect(() => {
@@ -77,21 +85,27 @@ export default function AdminDashboard() {
     setInstagramPhotos(getStoreItem('instagram_photos') || defaultInstagramPhotos)
   }, [authed])
 
-  // Persist helpers
-  const saveHero = (slides) => { setHeroSlides(slides); setStoreItem('hero_slides', slides) }
-  const saveCategories = (cats) => { setCategoryBlocks(cats); setStoreItem('category_blocks', cats) }
-  const saveMarcas = (m) => { setMarcas(m); setStoreItem('marcas', m) }
-  const saveBanners = (b) => { setBanners(b); setStoreItem('banners', b) }
-  const saveProductos = (p) => { setProductos(p); setStoreItem('productos', p) }
-  const saveTestimonios = (t) => { setTestimonios(t); setStoreItem('testimonios', t) }
-  const savePromos = (p) => { setPromos(p); setStoreItem('promos', p) }
-  const saveInstagram = (ig) => { setInstagramPhotos(ig); setStoreItem('instagram_photos', ig) }
+  // Persist helpers: write to localStorage immediately (fast feedback)
+  // and fire-and-forget sync to the Google Sheet via /api/sync.
+  const persist = (key, value) => {
+    setStoreItem(key, value)
+    syncEntity(key, value)
+  }
+  const saveHero = (slides) => { setHeroSlides(slides); persist('hero_slides', slides) }
+  const saveCategories = (cats) => { setCategoryBlocks(cats); persist('category_blocks', cats) }
+  const saveMarcas = (m) => { setMarcas(m); persist('marcas', m) }
+  const saveBanners = (b) => { setBanners(b); persist('banners', b) }
+  const saveProductos = (p) => { setProductos(p); persist('productos', p) }
+  const saveTestimonios = (t) => { setTestimonios(t); persist('testimonios', t) }
+  const savePromos = (p) => { setPromos(p); persist('promos', p) }
+  const saveInstagram = (ig) => { setInstagramPhotos(ig); persist('instagram_photos', ig) }
 
   const handleLogin = (e) => {
     e.preventDefault()
     if (pass === adminPassword) {
       setAuthed(true)
       localStorage.setItem('isabella_admin_auth', 'true')
+      setAdminPass(pass)
       setError(false)
     } else {
       setError(true)
@@ -101,6 +115,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     setAuthed(false)
     localStorage.removeItem('isabella_admin_auth')
+    clearAdminPass()
   }
 
   const toggleDarkMode = () => {
@@ -227,7 +242,10 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'pedidos' && (
-          <PedidosManager />
+          <PedidosManager
+            productos={productos}
+            onUpdateProductos={saveProductos}
+          />
         )}
 
         {activeTab === 'config' && (

@@ -251,18 +251,13 @@ Esta sección lista todo lo que el dueño/cliente tiene que completar antes de s
 - **Estructura esperada de columnas:** revisar [lib/sheets.js](lib/sheets.js) — cada función `parseXxx()` muestra qué columnas se esperan.
 - **Limitación conocida:** la lectura es read-only desde el sitio. Para editar, el dueño abre el Sheet directamente (hay links desde el admin).
 
-#### 5. Persistencia real del admin
-- **Problema actual:** todo lo que se edita desde `/admin/dashboard` vive en `localStorage` del navegador. Si el dueño edita desde la compu de su casa y después abre el sitio desde el celu, no ve los cambios.
-- **Soluciones posibles:**
-  - **Fácil:** que el dueño siempre edite desde el mismo navegador y lo vea ahí (MVP funcional)
-  - **Media:** mover la persistencia del admin a Google Sheets (hacer que cada `save*` también escriba a un Apps Script webhook)
-  - **Completa:** agregar una base (Supabase / Vercel KV / Firestore) + API routes protegidas
-- **Recomendación:** para arrancar, dejar localStorage + Sheets como fallback. Si el cliente pide multi-device, evaluar Supabase.
+#### 5. ~~Persistencia real del admin~~ ✅ RESUELTO
+- **Solución implementada:** cada vez que el admin guarda algo, se escribe en `localStorage` (feedback inmediato) y se sincroniza al Google Sheet vía Apps Script. Los visitantes leen del Sheet. Los datos ya no dependen de un solo navegador.
+- **Guía de configuración:** ver [SETUP-SYNC.md](SETUP-SYNC.md)
 
-#### 6. Pedidos centralizados
-- **Problema:** los pedidos del carrito se guardan en el `localStorage` del cliente que compra, no llegan al admin. El dueño solo ve los pedidos hechos **en su propio navegador**.
-- **Solución mínima:** al confirmar el carrito, además de abrir WhatsApp, enviar los datos del pedido a un Google Apps Script / Formspree / webhook que los persista donde el dueño los pueda ver.
-- **Archivo a tocar:** [components/landing/CarritoPanel.jsx](components/landing/CarritoPanel.jsx) y [lib/orders.js](lib/orders.js)
+#### 6. ~~Pedidos centralizados~~ ✅ RESUELTO
+- **Solución implementada:** al confirmar el carrito, además de abrir WhatsApp, el pedido se envía a `/api/orders` → Apps Script → pestaña `Pedidos` del Sheet. El admin puede ver, confirmar, cancelar y eliminar pedidos desde cualquier dispositivo.
+- **Guía de configuración:** ver [SETUP-SYNC.md](SETUP-SYNC.md)
 
 #### 7. Metadatos SEO + favicon + OG image
 - **Archivo:** [app/layout.jsx](app/layout.jsx) — revisar el objeto `metadata`

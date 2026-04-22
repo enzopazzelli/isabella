@@ -4,16 +4,36 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import ProductCard from './ProductCard'
 import FilterBar from './FilterBar'
 
-export default function ProductGrid({ productos = [], searchQuery = '', initialCategory = null, activeBrand = null, onClearBrand, onQuickView, onAddToCart }) {
+export default function ProductGrid({ productos = [], searchQuery = '', initialCategory = null, initialSeccion = null, activeBrand = null, onClearBrand, onSeccionChange, onCategoryChange, onQuickView }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory)
+  const [activeSeccion, setActiveSeccion] = useState(initialSeccion)
   const [activeTalle, setActiveTalle] = useState(null)
   const [sortBy, setSortBy] = useState(null)
   const [priceRange, setPriceRange] = useState(null)
   const sectionRef = useRef(null)
 
+  // Sync with parent (also when parent clears back to null)
   useEffect(() => {
-    if (initialCategory) setActiveCategory(initialCategory)
+    setActiveCategory(initialCategory)
   }, [initialCategory])
+
+  useEffect(() => {
+    setActiveSeccion(initialSeccion)
+  }, [initialSeccion])
+
+  const changeSeccion = (s) => {
+    setActiveSeccion(s)
+    if (onSeccionChange) onSeccionChange(s)
+  }
+  const changeCategory = (c) => {
+    setActiveCategory(c)
+    if (onCategoryChange) onCategoryChange(c)
+  }
+
+  // Extract unique secciones
+  const secciones = useMemo(() => {
+    return [...new Set(productos.map(p => p.seccion).filter(Boolean))].sort()
+  }, [productos])
 
   // Extract unique categories
   const categorias = useMemo(() => {
@@ -54,6 +74,10 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
       )
     }
 
+    if (activeSeccion) {
+      result = result.filter(p => p.seccion === activeSeccion)
+    }
+
     if (activeCategory) {
       result = result.filter(p => p.categoria === activeCategory)
     }
@@ -82,10 +106,11 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
     }
 
     return result
-  }, [productos, searchQuery, activeCategory, activeBrand, activeTalle, sortBy, priceRange])
+  }, [productos, searchQuery, activeSeccion, activeCategory, activeBrand, activeTalle, sortBy, priceRange])
 
   const handleClear = () => {
-    setActiveCategory(null)
+    changeSeccion(null)
+    changeCategory(null)
     setActiveTalle(null)
     setSortBy(null)
     setPriceRange(null)
@@ -119,6 +144,31 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
         )}
       </div>
 
+      {/* Section tabs */}
+      {secciones.length > 1 && (
+        <div className="flex justify-center gap-1 mb-6">
+          <button
+            onClick={() => changeSeccion(null)}
+            className={`px-5 py-2 font-display text-[11px] uppercase tracking-editorial border transition-colors ${
+              !activeSeccion ? 'bg-primary text-white border-primary' : 'border-border text-secondary hover:border-primary hover:text-primary'
+            }`}
+          >
+            Todos
+          </button>
+          {secciones.map((s) => (
+            <button
+              key={s}
+              onClick={() => changeSeccion(activeSeccion === s ? null : s)}
+              className={`px-5 py-2 font-display text-[11px] uppercase tracking-editorial border transition-colors ${
+                activeSeccion === s ? 'bg-primary text-white border-primary' : 'border-border text-secondary hover:border-primary hover:text-primary'
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
       <FilterBar
         categorias={categorias}
         tallesDisponibles={tallesDisponibles}
@@ -127,7 +177,7 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
         sortBy={sortBy}
         priceRange={priceRange}
         priceRanges={priceRanges}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={changeCategory}
         onTalleChange={setActiveTalle}
         onSortChange={setSortBy}
         onPriceChange={setPriceRange}
@@ -141,7 +191,6 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
             key={p.id}
             producto={p}
             onQuickView={onQuickView}
-            onAddToCart={onAddToCart}
           />
         ))}
       </div>

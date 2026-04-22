@@ -16,7 +16,9 @@ export default function ShareButton({ producto, variant = 'icon' }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/producto/${producto.id}`
+    : ''
   const shareText = `${producto.nombre} - Isabella Boutique`
 
   const handleShare = async (type) => {

@@ -5,6 +5,7 @@ import { Save, ExternalLink, RotateCcw } from 'lucide-react'
 import { negocio } from '@/lib/config'
 import { getStoreItem, setStoreItem, removeStoreItem } from '@/lib/store'
 import { getSheetEditUrl } from '@/lib/admin'
+import { syncEntity } from '@/lib/sync'
 
 export default function ConfigManager() {
   const [config, setConfig] = useState({
@@ -26,6 +27,7 @@ export default function ConfigManager() {
 
   const handleSave = () => {
     setStoreItem('config', config)
+    syncEntity('config', config)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

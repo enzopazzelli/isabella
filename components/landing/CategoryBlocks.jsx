@@ -4,7 +4,7 @@ export default function CategoryBlocks({ blocks = [], onCategoryClick }) {
   if (!blocks.length) return null
 
   return (
-    <section className="py-12 md:py-16 px-6 md:px-12">
+    <section id="nueva-coleccion" className="py-12 md:py-16 px-6 md:px-12">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {blocks.map((block) => (
           <button

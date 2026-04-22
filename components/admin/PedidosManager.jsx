@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ChevronDown, ChevronUp, Search, Check, X, Trash2 } from 'lucide-react'
-import { getOrders, getMetrics, updateOrderStatus, deleteOrder } from '@/lib/orders'
+import { useState, useEffect, useCallback } from 'react'
+import { ChevronDown, ChevronUp, Search, Check, X, Trash2, RefreshCw } from 'lucide-react'
+import {
+  getOrders, updateOrderStatus, deleteOrder,
+  fetchOrdersRemote, updateOrderStatusRemote, deleteOrderRemote,
+} from '@/lib/orders'
 
 function MetricCard({ label, value, sub }) {
   return (
@@ -14,30 +17,108 @@ function MetricCard({ label, value, sub }) {
   )
 }
 
-export default function PedidosManager() {
+function computeMetrics(orders) {
+  const confirmados = orders.filter(o => o.estado === 'confirmado')
+  const cancelados = orders.filter(o => o.estado === 'cancelado')
+  const pendientes = orders.filter(o => o.estado === 'pendiente')
+  const ingresos = confirmados.reduce((sum, o) => sum + (o.total || 0), 0)
+
+  const productCount = {}
+  confirmados.forEach(o => {
+    (o.items || []).forEach(item => {
+      const key = item.nombre
+      productCount[key] = (productCount[key] || 0) + item.cantidad
+    })
+  })
+  const topProductos = Object.entries(productCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([nombre, cantidad]) => ({ nombre, cantidad }))
+
+  return {
+    total: orders.length,
+    confirmados: confirmados.length,
+    cancelados: cancelados.length,
+    pendientes: pendientes.length,
+    ingresos,
+    conversion: orders.length ? Math.round((confirmados.length / orders.length) * 100) : 0,
+    topProductos,
+  }
+}
+
+export default function PedidosManager({ productos = [], onUpdateProductos }) {
   const [orders, setOrders] = useState([])
   const [metrics, setMetrics] = useState(null)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('todos')
   const [expandedId, setExpandedId] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [source, setSource] = useState('local')
 
-  const refresh = () => {
-    setOrders(getOrders())
-    setMetrics(getMetrics())
-  }
+  const refresh = useCallback(async () => {
+    setLoading(true)
+    // Try remote first (Google Sheet via Apps Script)
+    const remote = await fetchOrdersRemote()
+    if (remote && remote.length > 0) {
+      setOrders(remote)
+      setMetrics(computeMetrics(remote))
+      setSource('sheet')
+    } else {
+      // Fallback to localStorage
+      const local = getOrders()
+      setOrders(local)
+      setMetrics(computeMetrics(local))
+      setSource(remote === null ? 'local' : local.length > 0 ? 'local' : 'vacio')
+    }
+    setLoading(false)
+  }, [])
 
-  useEffect(() => { refresh() }, [])
+  useEffect(() => { refresh() }, [refresh])
 
   const formatPrice = (p) =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 }).format(p)
 
-  const handleStatus = (id, status) => {
+  // Adjust product stock: direction = -1 to decrease (confirm), +1 to restore (cancel confirmed)
+  const adjustStock = (orderItems, direction) => {
+    if (!onUpdateProductos || !productos.length || !orderItems) return
+    const updated = productos.map(p => {
+      let delta = 0
+      for (const item of orderItems) {
+        if (String(item.id) === String(p.id)) {
+          delta += item.cantidad
+        }
+      }
+      if (delta === 0) return p
+      return { ...p, stock: Math.max(0, (p.stock || 0) + delta * direction) }
+    })
+    onUpdateProductos(updated)
+  }
+
+  const handleStatus = async (id, status) => {
+    const order = orders.find(o => o.id === id)
+    const prevStatus = order?.estado
+
+    // Stock adjustment: confirming → decrease stock; un-confirming → restore.
+    if (order) {
+      if (status === 'confirmado' && prevStatus !== 'confirmado') {
+        adjustStock(order.items, -1)
+      } else if (prevStatus === 'confirmado' && status !== 'confirmado') {
+        adjustStock(order.items, +1)
+      }
+    }
+
+    // Optimistic local update
     updateOrderStatus(id, status)
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, estado: status } : o))
+    // Also push to the sheet
+    await updateOrderStatusRemote(id, status)
     refresh()
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     deleteOrder(id)
+    setOrders(prev => prev.filter(o => o.id !== id))
+    await deleteOrderRemote(id)
     refresh()
   }
 
@@ -105,7 +186,15 @@ export default function PedidosManager() {
             className="w-full pl-9 pr-3 py-2 border border-border font-body text-sm outline-none focus:border-primary transition-colors"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={refresh}
+            disabled={loading}
+            className="flex items-center gap-1.5 font-display text-[11px] uppercase tracking-editorial px-3 py-2 border border-border hover:border-primary transition-colors disabled:opacity-50"
+            title="Actualizar pedidos"
+          >
+            <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+          </button>
           {['todos', 'pendiente', 'confirmado', 'cancelado'].map((f) => (
             <button
               key={f}
@@ -119,6 +208,11 @@ export default function PedidosManager() {
           ))}
         </div>
       </div>
+
+      {/* Source indicator */}
+      <p className="font-body text-[10px] text-muted mb-3">
+        {source === 'sheet' ? 'Leyendo desde Google Sheets' : source === 'local' ? 'Leyendo desde este navegador (localStorage)' : 'Sin pedidos'}
+      </p>
 
       {/* Orders List */}
       <div className="space-y-2">

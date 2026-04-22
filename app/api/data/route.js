@@ -9,6 +9,7 @@ import {
   defaultInstagramPhotos,
   defaultFaqs,
   defaultPromos,
+  defaultMarcas,
 } from '@/lib/defaults'
 
 export async function GET() {
@@ -24,6 +25,8 @@ export async function GET() {
       instagramPhotos: data.instagramPhotos || defaultInstagramPhotos,
       faqs: data.faqs || defaultFaqs,
       config: data.config || { promos: defaultPromos.join('|') },
+      marcas: data.marcas || defaultMarcas,
+      promos: data.promos || defaultPromos,
     })
   } catch {
     return NextResponse.json({
@@ -35,6 +38,8 @@ export async function GET() {
       instagramPhotos: defaultInstagramPhotos,
       faqs: defaultFaqs,
       config: { promos: defaultPromos.join('|') },
+      marcas: defaultMarcas,
+      promos: defaultPromos,
     })
   }
 }
