@@ -109,13 +109,24 @@ export default function HomeClient({
     })
   }, [])
 
-  const heroSlides = adminOverrides.heroSlides || initialHeroSlides
-  const categoryBlocks = adminOverrides.categoryBlocks || initialCategoryBlocks
-  const productos = adminOverrides.productos || initialProductos
+  // Defensive sanitizer: drops invalid image URLs (empty strings, undefined,
+  // or non-URL-shaped values) so that <Image src=""> never reaches next/image
+  // (which would respond with 400 from /_next/image?url=). Falls back to ''
+  // so components hit their placeholder branch.
+  const isValidImg = (s) => typeof s === 'string' && /^(https?:\/\/|\/|data:)/.test(s.trim())
+  const cleanField = (item, field) => ({ ...item, [field]: isValidImg(item[field]) ? item[field].trim() : '' })
+  const cleanArr = (item, field) => ({
+    ...item,
+    [field]: Array.isArray(item[field]) ? item[field].filter(isValidImg).map(s => s.trim()) : [],
+  })
+
+  const heroSlides = (adminOverrides.heroSlides || initialHeroSlides).map(s => cleanField(s, 'imagen'))
+  const categoryBlocks = (adminOverrides.categoryBlocks || initialCategoryBlocks).map(c => cleanField(c, 'imagen'))
+  const banners = (adminOverrides.banners || initialBanners).map(b => cleanField(b, 'imagen'))
+  const instagramPhotos = (adminOverrides.instagramPhotos || initialInstagramPhotos).map(p => cleanField(p, 'imagen'))
+  const marcas = (adminOverrides.marcas || initialMarcas).map(m => cleanField(m, 'logo'))
+  const productos = (adminOverrides.productos || initialProductos).map(p => cleanArr(p, 'imagenes'))
   const testimonios = adminOverrides.testimonios || initialTestimonios
-  const banners = adminOverrides.banners || initialBanners
-  const instagramPhotos = adminOverrides.instagramPhotos || initialInstagramPhotos
-  const marcas = adminOverrides.marcas || initialMarcas
   const promos = adminOverrides.promos || initialPromos
   const negocioRuntime = adminOverrides.config ? mergeNegocio({ ...negocio, ...adminOverrides.config }) : negocio
 

@@ -87,11 +87,14 @@ export default function ProductoClient({ producto, negocio = defaultNegocio }) {
 
   const cartCount = cart.reduce((sum, item) => sum + item.cantidad, 0)
 
+  // Drop invalid image URLs so <Image src=""> never reaches next/image (400)
+  const isValidImg = (s) => typeof s === 'string' && /^(https?:\/\/|\/|data:)/.test(s.trim())
   const colores = producto.colores && producto.colores.length > 0 ? producto.colores : []
   const activeColor = selectedColor
-  const baseImages = producto.imagenes && producto.imagenes.length > 0 ? producto.imagenes : []
-  const imagenes = activeColor
-    ? [activeColor.imagen, ...baseImages.filter(img => img !== activeColor.imagen)]
+  const baseImages = Array.isArray(producto.imagenes) ? producto.imagenes.filter(isValidImg) : []
+  const colorImg = activeColor && isValidImg(activeColor.imagen) ? activeColor.imagen : null
+  const imagenes = colorImg
+    ? [colorImg, ...baseImages.filter(img => img !== colorImg)]
     : baseImages
   const isOutOfStock = producto.stock <= 0 || producto.disponible === false
 
