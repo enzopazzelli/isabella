@@ -9,10 +9,10 @@
  *  - Execute as: Me (the sheet owner)
  *  - Who has access: Anyone
  *
- * Before deploying, set a Script Property:
- *  Project Settings → Script Properties → Add property
- *    key:   SYNC_SECRET
- *    value: <long random string, the same you put in SYNC_SECRET env var on Vercel>
+ * Before deploying, set Script Properties (Project Settings → Script Properties):
+ *    SYNC_SECRET            — long random string, must match the env var on Vercel
+ *    DRIVE_ROOT_FOLDER_ID   — id of the Drive folder where uploaded images go
+ *                             (subfolders per entity are created automatically)
  */
 
 const PEDIDOS_SHEET = 'Pedidos';
@@ -33,6 +33,7 @@ function doPost(e) {
       case 'listOrders':  return jsonOut(handleListOrders());
       case 'updateOrder': return jsonOut(handleUpdateOrder(body));
       case 'deleteOrder': return jsonOut(handleDeleteOrder(body));
+      case 'uploadImage': return jsonOut(handleUploadImage(body));
       default:
         return jsonOut({ ok: false, error: 'unknown action: ' + body.action });
     }
@@ -176,7 +177,47 @@ function handleDeleteOrder(body) {
   return { ok: true };
 }
 
+/**
+ * Upload an image file to Drive, return its public CDN URL.
+ *
+ * body = {
+ *   filename: 'foto.jpg',
+ *   mimeType: 'image/jpeg',
+ *   dataBase64: '...',
+ *   subfolder: 'productos' | 'hero' | 'banners' | 'category_blocks' | 'instagram' | 'marcas'
+ * }
+ *
+ * Requires Script Property DRIVE_ROOT_FOLDER_ID (the Drive folder where
+ * images live). Subfolders are created on first use.
+ */
+function handleUploadImage(body) {
+  const rootId = PropertiesService.getScriptProperties().getProperty('DRIVE_ROOT_FOLDER_ID');
+  if (!rootId) return { ok: false, error: 'DRIVE_ROOT_FOLDER_ID not configured' };
+  if (!body.dataBase64) return { ok: false, error: 'missing dataBase64' };
+
+  const root = DriveApp.getFolderById(rootId);
+  const folder = body.subfolder ? getOrCreateChild(root, body.subfolder) : root;
+  const blob = Utilities.newBlob(
+    Utilities.base64Decode(body.dataBase64),
+    body.mimeType || 'image/jpeg',
+    body.filename || 'upload.jpg'
+  );
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  const fileId = file.getId();
+  return {
+    ok: true,
+    fileId: fileId,
+    url: 'https://lh3.googleusercontent.com/d/' + fileId,
+  };
+}
+
 // ---------- helpers ----------
+
+function getOrCreateChild(parent, name) {
+  const it = parent.getFoldersByName(name);
+  return it.hasNext() ? it.next() : parent.createFolder(name);
+}
 
 function getOrCreatePedidosSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();

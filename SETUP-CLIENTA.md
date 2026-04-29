@@ -1,25 +1,48 @@
 # Setup con la cuenta de la clienta — Isabella Boutique
 
-Pasos para dejar el sitio funcionando con el Drive y el Apps Script de la clienta.
+Pasos para dejar el sitio funcionando con la cuenta de Google de la clienta: el Sheet (catálogo + pedidos), el Drive (imágenes) y el panel de admin.
 
-Asume que el código ya está deployado en Vercel y que vos tenés acceso al panel de Vercel y a una cuenta de Google con la que vas a configurar todo (idealmente la misma cuenta que la clienta usa en el negocio).
+Asume que el código ya está deployado en Vercel y que tenés acceso al panel de Vercel + a una cuenta de Google con la que configurar todo (idealmente la misma que va a usar la clienta).
 
 ---
 
-## 1. Crear la estructura en Drive (5 min)
+## 1. Crear el Sheet y la carpeta de Drive (10 min)
 
-Loguearse en Drive con la cuenta de la clienta y:
+### 1.1 Carpeta raíz
 
-1. Crear una carpeta raíz llamada **`Isabella Boutique`** (o el nombre que prefieras).
-2. Dentro, crear el Google Sheet con las hojas que el sitio consume (`productos`, `hero_slides`, `category_blocks`, `marcas`, `banners`, `testimonios`, `instagram_photos`, `promos`, `config`). Si ya existe en otro lado, moverlo acá.
-3. Copiar el ID de la carpeta raíz desde la URL del browser:
-   `https://drive.google.com/drive/folders/<ESTE_ES_EL_ID>`
+1. En Drive, crear una carpeta llamada **`Isabella Boutique`** (o el nombre que prefieras).
+2. Copiar el ID de la carpeta de la URL: `https://drive.google.com/drive/folders/<ESTE_ES_EL_ID>`.
 
 > Las subcarpetas (`productos`, `hero`, `banners`, `category_blocks`, `instagram`, `marcas`) se crean **solas** la primera vez que se sube una foto desde el admin. No las crees a mano.
 
+### 1.2 Sheet con las pestañas
+
+1. Adentro de esa carpeta, crear un nuevo Google Sheet llamado **`Isabella Boutique CMS`**.
+2. Crear las siguientes pestañas con los nombres **exactos**:
+
+| Pestaña | Para qué sirve |
+|---|---|
+| `Productos` | Catálogo de productos |
+| `Hero` | Slides del hero principal |
+| `Categorias` | Bloques de categorías |
+| `Marcas` | Carrusel de marcas |
+| `Banners` | Banners editoriales |
+| `Testimonios` | Testimonios de clientas |
+| `Instagram` | Feed de Instagram |
+| `Promos` | Mensajes de la barra promocional |
+| `Config` | Datos del negocio (WhatsApp, redes, etc.) |
+| `Pedidos` | Pedidos que llegan del carrito |
+
+> No hace falta llenar nada a mano. La primera vez que se guarde algo desde el admin, las columnas se crean solas.
+
+3. **Compartir el Sheet** (necesario para que el sitio público lea datos):
+   - Botón "Compartir" (arriba a la derecha) → "Cualquier persona con el link puede ver".
+
+4. Copiar el **ID del Sheet** (entre `/d/` y `/edit` en la URL).
+
 ---
 
-## 2. Apps Script (15 min)
+## 2. Apps Script (10 min)
 
 ### 2.1 Abrir el editor
 
@@ -27,45 +50,47 @@ Desde el Sheet → **Extensiones → Apps Script**. Eso crea un script ligado al
 
 ### 2.2 Pegar el código
 
-Reemplazar todo el contenido del archivo `Code.gs` por el snippet completo que está en [docs/PLAN-UPLOAD-DRIVE.md](docs/PLAN-UPLOAD-DRIVE.md) bajo la sección "Apps Script". Adaptar tu lógica de `overwrite` ya existente al `switch` de ese snippet (mantener la auth con `data.secret` y devolver con `jsonResponse(...)`).
+1. Borrar todo el contenido del archivo `Codigo.gs` que aparece por defecto.
+2. Copiar **todo** el contenido del archivo [`apps-script/Code.gs`](apps-script/Code.gs) del repositorio y pegarlo.
+3. Guardar (Ctrl+S).
 
-**Antes de guardar:**
-- En la constante `ROOT_FOLDER_ID`, pegar el ID que copiaste en el paso 1.
+### 2.3 Configurar las Script Properties
 
-### 2.3 Configurar el secret
+Configuración del proyecto (engranaje a la izquierda) → **Propiedades del script** → Agregar dos propiedades:
 
-En el editor → **Project Settings (icono de engranaje) → Script Properties → Add script property**:
-
-| Property | Value |
+| Clave | Valor |
 |---|---|
-| `SYNC_SECRET` | un string largo y random (ej. generado con `openssl rand -hex 32`) |
+| `SYNC_SECRET` | un string largo y random (ej. `openssl rand -hex 32` o inventar uno tipo `isabella-secret-2026-xyzabc`) |
+| `DRIVE_ROOT_FOLDER_ID` | el ID de la carpeta del paso 1.1 |
 
-Anotá el valor — lo vas a necesitar en el paso 3.
+Anotá el `SYNC_SECRET` — lo necesitás en el paso 3.
 
 ### 2.4 Deploy
 
-**Deploy → New deployment → Type: Web app**:
+**Implementar → Nueva implementación → Tipo: Aplicación web**:
 
-- Description: `Isabella sync v1`
-- Execute as: **Me** (la cuenta de la clienta)
-- Who has access: **Anyone**
+- Descripción: `Isabella sync v1`
+- Ejecutar como: **Yo** (la cuenta de la clienta)
+- Quién tiene acceso: **Cualquier persona**
 
-Click Deploy. La primera vez Google va a pedir autorizar permisos de Drive y Sheets — aceptar.
+Click Implementar. La primera vez Google va a pedir autorizar permisos de Drive y Sheets — aceptar todo.
 
-Al final te da una URL del tipo:
+Al final aparece una URL del tipo:
 `https://script.google.com/macros/s/AKfycb.../exec`
 
 **Copiala. Esa es `APPS_SCRIPT_URL`.**
 
+> Cada vez que edites el código del Apps Script tenés que hacer una **nueva implementación** (no alcanza con guardar). El link `/exec` siempre apunta a la última implementación activa.
+
 ### 2.5 Health-check
 
-Abrir esa URL en una pestaña del browser. Tiene que devolver:
+Abrir esa URL en una pestaña del navegador. Tiene que responder con el texto:
 
-```json
-{"ok":true,"message":"Isabella sync endpoint is running"}
+```
+ok
 ```
 
-Si ves HTML de Google con "Authorization required" o similar, volvé al paso 2.4 y verificá que **Who has access** esté en "Anyone".
+Si ves HTML de Google con "Authorization required" o similar, volvé al paso 2.4 y verificá que **Quién tiene acceso** esté en "Cualquier persona".
 
 ---
 
@@ -78,64 +103,155 @@ En el dashboard de Vercel del proyecto → **Settings → Environment Variables*
 | `APPS_SCRIPT_URL` | la URL `/exec` del paso 2.4 |
 | `SYNC_SECRET` | el valor del paso 2.3 (mismo que en Script Properties) |
 | `ADMIN_PASSWORD` | el password con el que la clienta entra al panel admin |
-| `NEXT_PUBLIC_SHEET_ID` | el ID del Google Sheet (de la URL del documento, entre `/d/` y `/edit`) |
+| `NEXT_PUBLIC_SHEET_ID` | el ID del Sheet (paso 1.2) |
 
 Después: **Deployments → último deployment → Redeploy** para que el sitio levante con las env vars nuevas.
 
-> Para desarrollo local, copiar las mismas variables a un archivo `.env.local` en la raíz del proyecto. Si no seteás `ADMIN_PASSWORD` en dev, el panel acepta el password `isabella-dev` (solo cuando `NODE_ENV !== 'production'`).
+> Para desarrollo local, copiar las mismas variables a un archivo `.env.local` en la raíz del proyecto (hay un `.env.local.example` de referencia). Si no seteás `ADMIN_PASSWORD` en dev, el panel acepta `isabella-dev` como fallback (solo cuando `NODE_ENV !== 'production'`).
 
 ---
 
-## 4. Smoke test end-to-end (5 min)
+## 4. Smoke test end-to-end (10 min)
 
 1. Abrir `https://<tu-dominio-vercel>/admin` y loguearse con `ADMIN_PASSWORD`.
-2. Ir a la sección **Productos**.
-3. En cualquier producto, click en **Subir** dentro de un campo de imagen.
-4. Elegir una imagen `.jpg` o `.webp` chica (≤ 2 MB para la primera prueba).
-5. Esperar el spinner. La URL del campo debería pasar a algo como:
-   `https://lh3.googleusercontent.com/d/<file-id>`
-6. El preview de la imagen debe renderizar abajo del input.
-7. Click en **Guardar**. Ir al sheet y verificar que la columna `imagenes` del producto se actualizó con la URL nueva.
-8. Ir a Drive → carpeta raíz. Debería haberse creado `Isabella Boutique/productos/` con la foto adentro.
-9. La foto en Drive debe tener permiso **"Cualquier usuario que tenga el enlace"** (verificar haciendo click derecho → Compartir).
-10. Recargar el sitio público y verificar que la foto del producto se ve.
+2. Editar algo simple — ej. el título de un slide del Hero.
+3. Guardar. Abrir el Sheet → pestaña **Hero**. Las filas tienen que aparecer con los datos editados.
+4. Volver al admin → **Productos** → click **Subir** dentro de un campo de imagen.
+5. Elegir una imagen `.jpg` o `.webp` chica (≤ 2 MB para la primera prueba).
+6. Esperar el spinner. La URL del campo debería pasar a `https://lh3.googleusercontent.com/d/<file-id>` y el preview tiene que renderizar.
+7. Guardar. Abrir Drive → carpeta raíz. Tiene que haberse creado `Isabella Boutique/productos/` con la foto adentro.
+8. La foto en Drive debe tener permiso **"Cualquier usuario que tenga el enlace"** (verificar con click derecho → Compartir).
+9. Recargar el sitio público y verificar que se ve la foto del producto.
+10. Hacer un pedido de prueba: agregar al carrito desde el sitio público, completar el checkout con el botón de WhatsApp. Volver al admin → **Pedidos**. El pedido tiene que aparecer ahí.
 
-Si hasta acá funciona, repetir con una foto en cada otra entidad (`Hero`, `Banner`, `Category`, `Instagram`, `Marca`) para validar que las 6 subcarpetas se crean bien.
+Repetir el upload con una foto en cada otra entidad (`Hero`, `Banner`, `Category`, `Instagram`, `Marca`) para validar que las 6 subcarpetas se crean bien.
 
 ---
 
 ## 5. Troubleshooting
 
-### La URL `/exec` devuelve HTML en vez de JSON
-- El deploy no está activo. Volver a Deploy → Manage deployments → editar → asegurarse que **Who has access = Anyone** y **Execute as = Me**.
+### La URL `/exec` devuelve HTML en vez de `ok`
+- El deploy no está activo. Volver a Implementar → Administrar implementaciones → editar → asegurarse que **Quién tiene acceso = Cualquier persona** y **Ejecutar como = Yo**.
 
 ### Subir una foto devuelve `unauthorized`
 - El `SYNC_SECRET` en Vercel y en Script Properties no coinciden. Verificar exacto, sin espacios.
 
 ### Subir devuelve `apps script 502` o `invalid JSON from apps script`
-- Algo tiró excepción dentro del script. Ir a `script.google.com` → tu proyecto → **Executions** (icono de reloj) y ver el log del último request. Causas típicas:
-  - `ROOT_FOLDER_ID` mal pegado.
+- Algo tiró excepción dentro del script. Ir a `script.google.com` → tu proyecto → **Ejecuciones** (icono de reloj) y ver el log del último request. Causas típicas:
+  - `DRIVE_ROOT_FOLDER_ID` no configurado o mal pegado.
   - La carpeta raíz fue movida a la papelera.
-  - Permisos de Drive revocados (re-autorizar el script).
+  - Permisos de Drive revocados (re-autorizar el script desde Implementar → Administrar).
+
+### El Sheet no se actualiza al guardar desde el admin
+- Verificar `APPS_SCRIPT_URL` y `SYNC_SECRET` en Vercel.
+- Abrir DevTools del navegador (F12 → Console) en el admin, buscar warnings `[sync]`.
+- En Vercel → Logs, buscar errores en `/api/sync` o `/api/orders`.
 
 ### La imagen sube pero no se ve en el sitio
-- Abrir la URL `https://lh3.googleusercontent.com/d/<file-id>` directo en el browser. Si tampoco ahí carga, el archivo no quedó público. Revisar manualmente en Drive: click derecho → Compartir → "Cualquier usuario que tenga el enlace puede ver".
-- Si la cuenta de la clienta es Google Workspace con políticas restrictivas, esto puede estar bloqueado a nivel organización. En ese caso, alternativa: cambiar la URL devuelta por el script a `https://drive.google.com/file/d/{id}/view` ([lib/drive.js](lib/drive.js) ya la convierte).
+- Abrir la URL `https://lh3.googleusercontent.com/d/<file-id>` directo en el navegador. Si tampoco ahí carga, el archivo no quedó público (debería pasar automático, pero si la cuenta es Workspace con políticas restrictivas puede bloquearse).
 
-### Login al admin no funciona después del cambio de `ADMIN_PASSWORD`
-- Limpiar `sessionStorage` del browser (`localStorage.clear()` desde DevTools) y volver a loguear.
+### Login al admin no funciona
+- Limpiar `sessionStorage` del navegador (DevTools → Application → Storage → Clear) y volver a loguear.
+- Verificar que `ADMIN_PASSWORD` esté seteado en Vercel (sin esa env var, en producción el panel rechaza todo login).
 
 ---
 
-## 6. Checklist final
+## 6. Cómo funciona por dentro
 
-- [ ] Carpeta raíz creada en Drive de la clienta y compartida (si la clienta no es la dueña del Apps Script).
-- [ ] Sheet con todas las hojas dentro de la carpeta raíz.
-- [ ] `ROOT_FOLDER_ID` pegado en el script.
-- [ ] `SYNC_SECRET` configurado como Script Property y como env var en Vercel.
-- [ ] `APPS_SCRIPT_URL` y `ADMIN_PASSWORD` configurados en Vercel.
-- [ ] Deploy del Apps Script con "Anyone" + "Execute as: Me".
-- [ ] `/exec` abierta en browser devuelve `{"ok":true,...}`.
+```
+Admin guarda algo
+  ├─ localStorage (feedback inmediato, funciona offline)
+  └─ POST /api/sync → Apps Script → escribe en el Google Sheet
+                                        ↓
+Visitante abre la tienda
+  └─ /api/data → lee el Sheet via gviz → renderiza la landing
+```
+
+```
+Admin sube una imagen
+  └─ POST /api/upload-image → Apps Script → crea archivo en Drive
+                                                ↓
+                         devuelve URL pública (lh3.googleusercontent.com/d/...)
+                                                ↓
+                         se guarda en el campo del producto y luego al Sheet
+```
+
+```
+Cliente hace checkout
+  ├─ localStorage (copia local)
+  ├─ WhatsApp (mensaje directo al dueño con el detalle)
+  └─ POST /api/orders → Apps Script → append en pestaña "Pedidos"
+```
+
+```
+Admin abre la pestaña Pedidos
+  └─ GET /api/orders → Apps Script → lee pestaña "Pedidos" → muestra en el panel
+```
+
+- Si el Apps Script no está configurado (`APPS_SCRIPT_URL` vacío), todo el sync se desactiva silenciosamente y el sitio sigue funcionando con los defaults de `lib/defaults.js`. **No se rompe nada.**
+- El sync es **fire-and-forget**: si falla el Sheet, la UI del admin no se cuelga. Solo aparece un warning en la consola.
+
+---
+
+## 7. Checklist final
+
+- [ ] Carpeta raíz creada en Drive de la clienta.
+- [ ] Sheet con las 10 pestañas dentro de la carpeta raíz, compartido como "cualquiera con el link".
+- [ ] Apps Script con el contenido de `apps-script/Code.gs` pegado.
+- [ ] `SYNC_SECRET` y `DRIVE_ROOT_FOLDER_ID` configurados como Script Properties.
+- [ ] Apps Script desplegado como Web App con "Cualquier persona" + "Ejecutar como: Yo".
+- [ ] `/exec` abierta en navegador devuelve `ok`.
+- [ ] `APPS_SCRIPT_URL`, `SYNC_SECRET`, `ADMIN_PASSWORD`, `NEXT_PUBLIC_SHEET_ID` configurados en Vercel.
 - [ ] Vercel redeployado después de agregar env vars.
-- [ ] Smoke test: una foto subida desde admin aparece en el sheet, en Drive, y en el sitio público.
-- [ ] `ADMIN_PASSWORD` seteado en Vercel (sin él, el panel rechaza cualquier login en producción).
+- [ ] Smoke test: una foto subida desde admin aparece en el Sheet, en Drive y en el sitio público.
+- [ ] Smoke test: un pedido del carrito aparece en la pestaña Pedidos del Sheet y en la pestaña Pedidos del admin.
+
+---
+
+## Estructura de columnas del Sheet (referencia)
+
+No hace falta crearlas a mano (se generan al guardar por primera vez), pero si querés precargar datos directo en el Sheet, estas son las columnas esperadas:
+
+### Productos
+`ID | Nombre | Seccion | Categoria | Marca | Descripcion | Precio | PrecioAnterior | Talles | Badge | ImagenURL | Stock | Disponible | Orden`
+
+- `Seccion`: `Mujer`, `Hombre` o `Kids`
+- `Talles`: separados por coma (`S,M,L,XL`)
+- `ImagenURL`: múltiples imágenes separadas por `|`
+- `Disponible`: `TRUE` o `FALSE`
+
+### Hero
+`ID | ImagenURL | Titulo | Subtitulo | TextoBoton | LinkBoton | PosicionTexto | Activo | Orden`
+
+### Categorias
+`ID | Nombre | ImagenURL | Activo | Orden`
+
+### Marcas
+`ID | Nombre | Logo | Orden`
+
+### Banners
+`ID | ImagenURL | Titulo | Subtitulo | TextoBoton | LinkBoton | PosicionTexto | Ubicacion | Activo | Orden`
+
+### Testimonios
+`ID | Nombre | Texto`
+
+### Instagram
+`ID | ImagenURL | Activo | Orden`
+
+### Promos
+`ID | Texto | Orden`
+
+### Config
+`Clave | Valor`
+
+Ejemplo:
+| Clave | Valor |
+|---|---|
+| whatsapp | 5493854123456 |
+| instagram | isabella_anatuya |
+
+### Pedidos
+`ID | Fecha | Cliente | Notas | Total | Estado | Items`
+
+- `Items`: JSON serializado (no editar a mano).
+- `Estado`: `pendiente`, `confirmado`, o `cancelado`.
