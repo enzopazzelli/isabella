@@ -27,7 +27,7 @@ Desde el Sheet → **Extensiones → Apps Script**. Eso crea un script ligado al
 
 ### 2.2 Pegar el código
 
-Reemplazar todo el contenido del archivo `Code.gs` por el snippet completo que está en [PLAN-UPLOAD-DRIVE.md](PLAN-UPLOAD-DRIVE.md) bajo la sección "Apps Script". Adaptar tu lógica de `overwrite` ya existente al `switch` de ese snippet (mantener la auth con `data.secret` y devolver con `jsonResponse(...)`).
+Reemplazar todo el contenido del archivo `Code.gs` por el snippet completo que está en [docs/PLAN-UPLOAD-DRIVE.md](docs/PLAN-UPLOAD-DRIVE.md) bajo la sección "Apps Script". Adaptar tu lógica de `overwrite` ya existente al `switch` de ese snippet (mantener la auth con `data.secret` y devolver con `jsonResponse(...)`).
 
 **Antes de guardar:**
 - En la constante `ROOT_FOLDER_ID`, pegar el ID que copiaste en el paso 1.
