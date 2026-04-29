@@ -5,10 +5,10 @@ import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Image } from 'lucid
 import ImageField from './ImageField'
 
 export default function HeroManager({ slides = [], onSave }) {
-  const [items, setItems] = useState(slides)
+  const items = slides
   const [expandedId, setExpandedId] = useState(null)
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addSlide = () => {
     const newSlide = {
@@ -91,7 +91,7 @@ export default function HeroManager({ slides = [], onSave }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Titulo" value={slide.titulo} onChange={(v) => updateSlide(slide.id, 'titulo', v)} placeholder="Ej: NUEVA COLECCION" />
                   <Field label="Subtitulo" value={slide.subtitulo} onChange={(v) => updateSlide(slide.id, 'subtitulo', v)} placeholder="Texto secundario" />
-                  <ImageField label="Imagen" value={slide.imagen} onChange={(v) => updateSlide(slide.id, 'imagen', v)} />
+                  <ImageField label="Imagen" value={slide.imagen} onChange={(v) => updateSlide(slide.id, 'imagen', v)} subfolder="hero" />
                   <Field label="Posicion del texto" value={slide.posicionTexto} onChange={(v) => updateSlide(slide.id, 'posicionTexto', v)} type="select" options={['center', 'bottom-left', 'bottom-center', 'bottom-right']} />
                   <Field label="Texto del boton" value={slide.textoBoton} onChange={(v) => updateSlide(slide.id, 'textoBoton', v)} placeholder="Ej: VER COLECCION (vacio = sin boton)" />
                   <Field label="Link del boton" value={slide.linkBoton} onChange={(v) => updateSlide(slide.id, 'linkBoton', v)} placeholder="#productos" />

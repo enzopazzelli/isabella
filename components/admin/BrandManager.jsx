@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { Plus, Trash2, Image, ArrowUp, ArrowDown } from 'lucide-react'
 import ImageField from './ImageField'
 
 export default function BrandManager({ marcas = [], onSave }) {
-  const [items, setItems] = useState(marcas)
+  const items = marcas
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addMarca = () => {
     const newMarca = {
@@ -80,7 +79,7 @@ export default function BrandManager({ marcas = [], onSave }) {
                 placeholder="Nombre de marca"
                 className="w-full border-b border-border pb-1 font-display text-[11px] uppercase tracking-editorial outline-none focus:border-primary transition-colors"
               />
-              <ImageField label="" value={marca.logo} onChange={(v) => updateMarca(marca.id, 'logo', v)} placeholder="URL del logo o link de Drive (opcional)" />
+              <ImageField label="" value={marca.logo} onChange={(v) => updateMarca(marca.id, 'logo', v)} placeholder="URL del logo o link de Drive (opcional)" subfolder="marcas" />
               <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center gap-1">
                   <button

@@ -6,9 +6,9 @@ import Modal from '@/components/ui/Modal'
 import FormattedDescription from '@/components/ui/FormattedDescription'
 import ShareButton from '@/components/ui/ShareButton'
 import SizeGuideLink from '@/components/ui/SizeGuideLink'
-import { negocio } from '@/lib/config'
+import { negocio as defaultNegocio } from '@/lib/config'
 
-export default function QuickViewModal({ producto, isOpen, onClose, onAddToCart }) {
+export default function QuickViewModal({ producto, isOpen, onClose, onAddToCart, negocio = defaultNegocio }) {
   const [selectedTalle, setSelectedTalle] = useState(null)
   const [cantidad, setCantidad] = useState(1)
   const [currentImg, setCurrentImg] = useState(0)

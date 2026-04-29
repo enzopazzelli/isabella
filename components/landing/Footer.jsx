@@ -25,9 +25,9 @@ function TiktokIcon({ size = 20 }) {
     </svg>
   )
 }
-import { negocio, navLinks } from '@/lib/config'
+import { negocio as defaultNegocio, navLinks } from '@/lib/config'
 
-export default function Footer() {
+export default function Footer({ negocio = defaultNegocio }) {
   return (
     <footer id="contacto" className="bg-primary text-white">
       <div className="px-6 md:px-12 py-12 md:py-16">

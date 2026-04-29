@@ -86,7 +86,7 @@ export default function ConfigManager() {
           </p>
         </div>
         <div className="p-5 space-y-3">
-          {['Productos', 'Hero', 'Categorias', 'Banners', 'Testimonios', 'Instagram', 'FAQ', 'Config'].map(sheet => (
+          {['Productos', 'Hero', 'Categorias', 'Marcas', 'Banners', 'Testimonios', 'Instagram', 'Promos', 'FAQ', 'Config'].map(sheet => (
             <a
               key={sheet}
               href={getSheetEditUrl(sheet)}

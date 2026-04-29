@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 
 export default function TestimonioManager({ testimonios = [], onSave }) {
-  const [items, setItems] = useState(testimonios)
+  const items = testimonios
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addTestimonio = () => {
     const newT = { id: String(Date.now()), nombre: '', texto: '' }

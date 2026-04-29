@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server'
 import { callAppsScript } from '@/lib/appsScriptClient'
-import { adminPassword as fallbackPassword } from '@/lib/config'
+import { isAuthorized } from '@/lib/auth'
 
 export const runtime = 'nodejs'
-
-function isAuthorized(req) {
-  const header = req.headers.get('authorization') || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7) : ''
-  const expected = process.env.ADMIN_PASSWORD || fallbackPassword
-  return Boolean(token) && token === expected
-}
 
 // POST — public checkout. A shopper places an order; we append it to the
 // Pedidos sheet. Minimal validation: require id + items. No auth: it's a

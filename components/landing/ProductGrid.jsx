@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import ProductCard from './ProductCard'
 import FilterBar from './FilterBar'
+import { useScrollReveal } from '@/lib/hooks/useScrollReveal'
+import { eqCi } from '@/lib/utils'
 
 export default function ProductGrid({ productos = [], searchQuery = '', initialCategory = null, initialSeccion = null, activeBrand = null, onClearBrand, onSeccionChange, onCategoryChange, onQuickView }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory)
@@ -10,7 +12,7 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
   const [activeTalle, setActiveTalle] = useState(null)
   const [sortBy, setSortBy] = useState(null)
   const [priceRange, setPriceRange] = useState(null)
-  const sectionRef = useRef(null)
+  const sectionRef = useScrollReveal()
 
   // Sync with parent (also when parent clears back to null)
   useEffect(() => {
@@ -75,15 +77,15 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
     }
 
     if (activeSeccion) {
-      result = result.filter(p => p.seccion === activeSeccion)
+      result = result.filter(p => eqCi(p.seccion, activeSeccion))
     }
 
     if (activeCategory) {
-      result = result.filter(p => p.categoria === activeCategory)
+      result = result.filter(p => eqCi(p.categoria, activeCategory))
     }
 
     if (activeBrand) {
-      result = result.filter(p => p.marca === activeBrand)
+      result = result.filter(p => eqCi(p.marca, activeBrand))
     }
 
     if (activeTalle) {
@@ -116,17 +118,6 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
     setPriceRange(null)
   }
 
-  // Scroll reveal
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
-      { threshold: 0.1 }
-    )
-    const el = sectionRef.current
-    if (el) observer.observe(el)
-    return () => { if (el) observer.unobserve(el) }
-  }, [])
-
   return (
     <section id="productos" className="py-12 md:py-20 px-6 md:px-12 scroll-reveal" ref={sectionRef}>
       <div className="text-center mb-10">
@@ -158,9 +149,9 @@ export default function ProductGrid({ productos = [], searchQuery = '', initialC
           {secciones.map((s) => (
             <button
               key={s}
-              onClick={() => changeSeccion(activeSeccion === s ? null : s)}
+              onClick={() => changeSeccion(eqCi(activeSeccion, s) ? null : s)}
               className={`px-5 py-2 font-display text-[11px] uppercase tracking-editorial border transition-colors ${
-                activeSeccion === s ? 'bg-primary text-white border-primary' : 'border-border text-secondary hover:border-primary hover:text-primary'
+                eqCi(activeSeccion, s) ? 'bg-primary text-white border-primary' : 'border-border text-secondary hover:border-primary hover:text-primary'
               }`}
             >
               {s}

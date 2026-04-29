@@ -5,10 +5,10 @@ import { Plus, Trash2, ChevronDown, ChevronUp, Image } from 'lucide-react'
 import ImageField from './ImageField'
 
 export default function BannerManager({ banners = [], onSave }) {
-  const [items, setItems] = useState(banners)
+  const items = banners
   const [expandedId, setExpandedId] = useState(null)
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addBanner = () => {
     const newBanner = {
@@ -72,7 +72,7 @@ export default function BannerManager({ banners = [], onSave }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Field label="Titulo" value={banner.titulo} onChange={(v) => updateBanner(banner.id, 'titulo', v)} />
                   <Field label="Subtitulo" value={banner.subtitulo} onChange={(v) => updateBanner(banner.id, 'subtitulo', v)} />
-                  <ImageField label="Imagen" value={banner.imagen} onChange={(v) => updateBanner(banner.id, 'imagen', v)} />
+                  <ImageField label="Imagen" value={banner.imagen} onChange={(v) => updateBanner(banner.id, 'imagen', v)} subfolder="banners" />
                   <Field label="Ubicacion" value={banner.ubicacion} onChange={(v) => updateBanner(banner.id, 'ubicacion', v)} type="select" options={['pre-productos', 'mid-productos', 'post-productos']} />
                   <Field label="Texto boton" value={banner.textoBoton} onChange={(v) => updateBanner(banner.id, 'textoBoton', v)} />
                   <Field label="Posicion texto" value={banner.posicionTexto} onChange={(v) => updateBanner(banner.id, 'posicionTexto', v)} type="select" options={['center', 'bottom-left', 'bottom-center', 'bottom-right']} />

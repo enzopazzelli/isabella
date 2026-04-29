@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { Plus, Trash2, Image, ArrowUp, ArrowDown } from 'lucide-react'
 import ImageField from './ImageField'
 
 export default function InstagramManager({ photos = [], onSave }) {
-  const [items, setItems] = useState(photos)
+  const items = photos
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addPhoto = () => {
     const newPhoto = {
@@ -78,7 +77,7 @@ export default function InstagramManager({ photos = [], onSave }) {
                 )}
               </div>
               <div className="p-2 space-y-2">
-                <ImageField label="" value={photo.imagen} onChange={(v) => updatePhoto(photo.id, v)} placeholder="URL o Drive" />
+                <ImageField label="" value={photo.imagen} onChange={(v) => updatePhoto(photo.id, v)} placeholder="URL o Drive" subfolder="instagram" />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <button

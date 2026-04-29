@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { ExternalLink, RefreshCw, LogOut, Eye, ArrowLeft, Sun, Moon } from 'lucide-react'
-import { adminPassword } from '@/lib/config'
 import { getSheetEditUrl } from '@/lib/admin'
 import { getStoreItem, setStoreItem } from '@/lib/store'
-import { syncEntity, setAdminPass, clearAdminPass } from '@/lib/sync'
+import { syncEntity, setAdminPass, getAdminPass, clearAdminPass } from '@/lib/sync'
 import {
   defaultHeroSlides,
   defaultCategoryBlocks,
@@ -54,16 +53,14 @@ export default function AdminDashboard() {
   const [instagramPhotos, setInstagramPhotos] = useState([])
 
   useEffect(() => {
-    const saved = localStorage.getItem('isabella_admin_auth')
-    if (saved === 'true') setAuthed(true)
     const theme = localStorage.getItem('isabella_admin_dark')
     if (theme === 'true') setDarkMode(true)
-    // Restore the pass from session if the tab was kept open.
-    // If sessionStorage is empty (new tab after login persistence), fall
-    // back to the compiled-in adminPassword so sync keeps working.
-    if (typeof window !== 'undefined') {
-      const existing = sessionStorage.getItem('isabella_admin_pass')
-      if (!existing) setAdminPass(adminPassword)
+    // Auth is gated by the presence of a password in sessionStorage. If a
+    // previous tab is still open with a valid password, we trust it; otherwise
+    // the user must log in again. We do NOT persist authed across full browser
+    // restarts (no localStorage flag) — sessionStorage clears on tab close.
+    if (typeof window !== 'undefined' && getAdminPass()) {
+      setAuthed(true)
     }
   }, [])
 
@@ -100,21 +97,28 @@ export default function AdminDashboard() {
   const savePromos = (p) => { setPromos(p); persist('promos', p) }
   const saveInstagram = (ig) => { setInstagramPhotos(ig); persist('instagram_photos', ig) }
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (pass === adminPassword) {
-      setAuthed(true)
-      localStorage.setItem('isabella_admin_auth', 'true')
-      setAdminPass(pass)
-      setError(false)
-    } else {
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass }),
+      })
+      if (res.ok) {
+        setAdminPass(pass)
+        setAuthed(true)
+        setError(false)
+      } else {
+        setError(true)
+      }
+    } catch {
       setError(true)
     }
   }
 
   const handleLogout = () => {
     setAuthed(false)
-    localStorage.removeItem('isabella_admin_auth')
     clearAdminPass()
   }
 

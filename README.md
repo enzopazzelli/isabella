@@ -234,7 +234,7 @@ Esta sección lista todo lo que el dueño/cliente tiene que completar antes de s
 
 #### 3. Imágenes reales del negocio
 - **Dónde:** [lib/defaults.js](lib/defaults.js)
-- **Actual:** rutas `/imgs/IMG_99XX.PNG` apuntando a `public/imgs/` (placeholders)
+- **Actual:** rutas `/imgs/IMG_99XX.webp` apuntando a `public/imgs/` (placeholders)
 - **Qué cambiar:** subir las fotos reales a Google Drive y reemplazar todos los links — o cargarlas desde el panel admin. Aplica a: hero slides, category blocks, banners, productos, testimonios, Instagram feed, logos de marcas.
 
 ### 🟡 Importante (antes del lanzamiento público)

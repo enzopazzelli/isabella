@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { fetchAllData } from '@/lib/sheets'
+
+export const revalidate = 300
 import {
   defaultHeroSlides,
   defaultCategoryBlocks,

@@ -26,9 +26,9 @@ function TiktokIcon({ size = 20 }) {
     </svg>
   )
 }
-import { negocio, navLinks } from '@/lib/config'
+import { negocio as defaultNegocio, navLinks } from '@/lib/config'
 
-export default function Navbar({ cartCount = 0, onCartClick, onSearch, categorias = [], darkMode = false, onToggleDark }) {
+export default function Navbar({ cartCount = 0, onCartClick, onSearch, categorias = [], darkMode = false, onToggleDark, negocio = defaultNegocio }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')

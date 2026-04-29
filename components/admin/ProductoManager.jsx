@@ -5,7 +5,7 @@ import { Plus, Trash2, ChevronDown, ChevronUp, Search, Image, Copy, List, Layout
 import ImageField from './ImageField'
 
 export default function ProductoManager({ productos = [], marcas = [], onSave }) {
-  const [items, setItems] = useState(productos)
+  const items = productos
   const [expandedId, setExpandedId] = useState(null)
   const [search, setSearch] = useState('')
   const [filterSeccion, setFilterSeccion] = useState('')
@@ -15,7 +15,7 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
   const [filterDisp, setFilterDisp] = useState('')        // '' | 'si' | 'no'
   const [viewMode, setViewMode] = useState('detail')      // 'detail' | 'compact'
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const seccionesUnicas = [...new Set(items.map(p => p.seccion).filter(Boolean))].sort()
   const categorias = [...new Set(items.map(p => p.categoria).filter(Boolean))].sort()
@@ -382,6 +382,7 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
                             imgs[i] = v
                             updateProducto(prod.id, 'imagenes', imgs.filter(Boolean))
                           }}
+                          subfolder="productos"
                         />
                       </div>
                       <button
@@ -448,6 +449,7 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
                             cols[i] = { ...cols[i], imagen: v }
                             updateProducto(prod.id, 'colores', cols)
                           }}
+                          subfolder="productos"
                         />
                       </div>
                       <button

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useScrollReveal } from '@/lib/hooks/useScrollReveal'
 
 export default function Testimonios({ testimonios = [] }) {
   const [current, setCurrent] = useState(0)
-  const ref = useRef(null)
+  const ref = useScrollReveal()
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % testimonios.length)
@@ -15,15 +16,6 @@ export default function Testimonios({ testimonios = [] }) {
     const timer = setInterval(next, 8000)
     return () => clearInterval(timer)
   }, [testimonios.length, next])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
-      { threshold: 0.1 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => { if (ref.current) observer.unobserve(ref.current) }
-  }, [])
 
   if (!testimonios.length) return null
 

@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import Image from 'next/image'
+import { useScrollReveal } from '@/lib/hooks/useScrollReveal'
 
 const positionClasses = {
   'center': 'items-center justify-center text-center',
@@ -10,16 +11,7 @@ const positionClasses = {
 }
 
 export default function EditorialBanner({ banner }) {
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
-      { threshold: 0.1 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => { if (ref.current) observer.unobserve(ref.current) }
-  }, [])
+  const ref = useScrollReveal()
 
   if (!banner) return null
 
@@ -27,10 +19,13 @@ export default function EditorialBanner({ banner }) {
     <section className="scroll-reveal" ref={ref}>
       <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
         {banner.imagen ? (
-          <img
+          <Image
             src={banner.imagen}
             alt={banner.titulo || ''}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            loading="lazy"
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-stone-700" />

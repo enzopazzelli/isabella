@@ -1,6 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import Image from 'next/image'
+import { negocio as defaultNegocio } from '@/lib/config'
+import { useScrollReveal } from '@/lib/hooks/useScrollReveal'
+
 function InstagramIcon({ size = 24, className = '' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -8,19 +11,9 @@ function InstagramIcon({ size = 24, className = '' }) {
     </svg>
   )
 }
-import { negocio } from '@/lib/config'
 
-export default function InstagramFeed({ photos = [] }) {
-  const ref = useRef(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
-      { threshold: 0.1 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => { if (ref.current) observer.unobserve(ref.current) }
-  }, [])
+export default function InstagramFeed({ photos = [], negocio = defaultNegocio }) {
+  const ref = useScrollReveal()
 
   if (!photos.length) return null
 
@@ -53,10 +46,13 @@ export default function InstagramFeed({ photos = [] }) {
             className="group relative aspect-square overflow-hidden"
           >
             {photo.imagen ? (
-              <img
+              <Image
                 src={photo.imagen}
                 alt=""
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                loading="lazy"
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200" />

@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { Plus, Trash2, Image } from 'lucide-react'
 import ImageField from './ImageField'
 
 export default function CategoryManager({ blocks = [], onSave }) {
-  const [items, setItems] = useState(blocks)
+  const items = blocks
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addBlock = () => {
     const newBlock = { id: String(Date.now()), nombre: '', imagen: '', orden: items.length + 1 }
@@ -59,7 +58,7 @@ export default function CategoryManager({ blocks = [], onSave }) {
                 placeholder="Nombre"
                 className="w-full border-b border-border pb-1 font-display text-[11px] uppercase tracking-editorial outline-none focus:border-primary transition-colors"
               />
-              <ImageField label="" value={block.imagen} onChange={(v) => updateBlock(block.id, 'imagen', v)} placeholder="URL imagen o link de Drive" />
+              <ImageField label="" value={block.imagen} onChange={(v) => updateBlock(block.id, 'imagen', v)} placeholder="URL imagen o link de Drive" subfolder="category_blocks" />
               <button
                 onClick={() => removeBlock(block.id)}
                 className="flex items-center gap-1 font-display text-[9px] uppercase tracking-editorial text-sale hover:text-red-700 transition-colors"

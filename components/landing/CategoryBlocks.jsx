@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 export default function CategoryBlocks({ blocks = [], onCategoryClick }) {
   if (!blocks.length) return null
 
@@ -13,10 +15,13 @@ export default function CategoryBlocks({ blocks = [], onCategoryClick }) {
             className="group relative aspect-[3/4] overflow-hidden"
           >
             {block.imagen ? (
-              <img
+              <Image
                 src={block.imagen}
                 alt={block.nombre}
-                className="w-full h-full object-cover img-zoom"
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                loading="lazy"
+                className="object-cover img-zoom"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300">

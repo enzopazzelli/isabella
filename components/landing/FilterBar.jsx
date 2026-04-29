@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronDown, SlidersHorizontal, X } from 'lucide-react'
+import { eqCi } from '@/lib/utils'
 
 export default function FilterBar({
   categorias = [],
@@ -53,9 +54,9 @@ export default function FilterBar({
             {categorias.map((cat) => (
               <button
                 key={cat}
-                onClick={() => onCategoryChange(cat === activeCategory ? null : cat)}
+                onClick={() => onCategoryChange(eqCi(cat, activeCategory) ? null : cat)}
                 className={`font-display text-[11px] uppercase tracking-editorial px-3 py-1.5 border transition-colors ${
-                  activeCategory === cat ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-border hover:border-primary'
+                  eqCi(activeCategory, cat) ? 'bg-primary text-white border-primary' : 'bg-white text-primary border-border hover:border-primary'
                 }`}
               >
                 {cat}

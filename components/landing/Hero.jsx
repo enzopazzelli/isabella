@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 
 const positionClasses = {
   'center': 'items-center justify-center text-center',
@@ -55,10 +56,14 @@ export default function Hero({ slides = [] }) {
           className={`hero-slide absolute inset-0 ${i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
         >
           {slide.imagen ? (
-            <img
+            <Image
               src={slide.imagen}
               alt={slide.titulo || ''}
-              className="w-full h-full object-cover"
+              fill
+              priority={i === 0}
+              loading={i === 0 ? undefined : 'lazy'}
+              sizes="100vw"
+              className="object-cover"
             />
           ) : (
             <HeroPlaceholder titulo={slide.titulo} index={i} />

@@ -1,16 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getEntity } from '@/lib/sheetMappers'
 import { callAppsScript } from '@/lib/appsScriptClient'
-import { adminPassword as fallbackPassword } from '@/lib/config'
+import { isAuthorized } from '@/lib/auth'
 
 export const runtime = 'nodejs'
-
-function isAuthorized(req) {
-  const header = req.headers.get('authorization') || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7) : ''
-  const expected = process.env.ADMIN_PASSWORD || fallbackPassword
-  return Boolean(token) && token === expected
-}
 
 export async function POST(req) {
   if (!isAuthorized(req)) {

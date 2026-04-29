@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { Plus, Trash2, GripVertical } from 'lucide-react'
 
 export default function PromoManager({ promos = [], onSave }) {
-  const [items, setItems] = useState(promos)
+  const items = promos
 
-  const save = (updated) => { setItems(updated); onSave(updated) }
+  const save = (updated) => onSave(updated)
 
   const addPromo = () => save([...items, ''])
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 function slugify(text) {
   return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -54,19 +55,23 @@ export default function ProductCard({ producto, onQuickView }) {
         {hasImages ? (
           <div className="relative w-full h-full">
             {/* Primary image */}
-            <img
+            <Image
               src={displayImages[0]}
               alt={producto.nombre}
-              className={`w-full h-full object-cover transition-all duration-500 ${
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              className={`object-cover transition-all duration-500 ${
                 hasMultipleImages && hovered ? 'opacity-0' : 'opacity-100'
               } ${!hasMultipleImages && hovered ? 'scale-[1.03]' : 'scale-100'}`}
             />
             {/* Secondary image on hover (crossfade) */}
             {hasMultipleImages && (
-              <img
+              <Image
                 src={displayImages[1]}
                 alt={producto.nombre}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                className={`object-cover transition-opacity duration-500 ${
                   hovered ? 'opacity-100' : 'opacity-0'
                 }`}
               />

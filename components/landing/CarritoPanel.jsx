@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { X, Minus, Plus, ShoppingBag, MessageCircle, CreditCard } from 'lucide-react'
-import { negocio } from '@/lib/config'
+import { negocio as defaultNegocio } from '@/lib/config'
 import { generateOrderId, saveOrder, postOrderRemote } from '@/lib/orders'
 import SizeGuideLink from '@/components/ui/SizeGuideLink'
 
-export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem, onRemoveItem, onChangeTalle, onClear }) {
+export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem, onRemoveItem, onChangeTalle, onClear, negocio = defaultNegocio }) {
   const [nombre, setNombre] = useState('')
   const [notas, setNotas] = useState('')
 

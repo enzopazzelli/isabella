@@ -1,6 +1,7 @@
 'use client'
 
 import { defaultMarcas } from '@/lib/defaults'
+import { eqCi } from '@/lib/utils'
 
 export default function BrandsCarousel({ marcas = [], activeMarca = null, onBrandClick }) {
   const validMarcas = (marcas.filter(m => m && m.nombre).length > 0 ? marcas : defaultMarcas).filter(m => m && m.nombre)
@@ -27,7 +28,7 @@ export default function BrandsCarousel({ marcas = [], activeMarca = null, onBran
 
         <div className="flex animate-marquee-slow whitespace-nowrap">
           {loop.map((m, i) => {
-            const isActive = activeMarca === m.nombre
+            const isActive = eqCi(activeMarca, m.nombre)
             return (
               <button
                 key={`${m.id}-${i}`}
