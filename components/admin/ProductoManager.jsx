@@ -27,8 +27,9 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
   ].sort()
 
   const addProducto = () => {
+    const maxId = items.reduce((max, i) => { const n = Number(i.id); return isNaN(n) ? max : Math.max(max, n) }, 0)
     const newProd = {
-      id: String(Date.now()),
+      id: String(maxId + 1),
       nombre: '',
       seccion: seccionesUnicas[0] || 'Mujer',
       categoria: categorias[0] || '',
@@ -41,7 +42,7 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
       imagenes: [],
       stock: 10,
       disponible: true,
-      orden: items.length + 1,
+      orden: items.reduce((min, i) => Math.min(min, Number(i.orden) || 0), 0) - 1,
     }
     save([newProd, ...items])
     setExpandedId(newProd.id)
