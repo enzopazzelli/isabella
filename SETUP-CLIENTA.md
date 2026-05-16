@@ -13,6 +13,8 @@ Asume que el código ya está deployado en Vercel y que tenés acceso al panel d
 1. En Drive, crear una carpeta llamada **`Isabella Boutique`** (o el nombre que prefieras).
 2. Copiar el ID de la carpeta de la URL: `https://drive.google.com/drive/folders/<ESTE_ES_EL_ID>`.
 
+> **Guardá este ID** — lo vas a pegar en el paso 2.3 como `DRIVE_ROOT_FOLDER_ID`.
+
 > Las subcarpetas (`productos`, `hero`, `banners`, `category_blocks`, `instagram`, `marcas`) se crean **solas** la primera vez que se sube una foto desde el admin. No las crees a mano.
 
 ### 1.2 Sheet con las pestañas
@@ -39,6 +41,8 @@ Asume que el código ya está deployado en Vercel y que tenés acceso al panel d
    - Botón "Compartir" (arriba a la derecha) → "Cualquier persona con el link puede ver".
 
 4. Copiar el **ID del Sheet** (entre `/d/` y `/edit` en la URL).
+
+> **Guardá este ID** — lo vas a pegar en el paso 3 como `NEXT_PUBLIC_SHEET_ID`.
 
 ---
 
