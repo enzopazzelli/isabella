@@ -55,7 +55,7 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     saveOrder(order)
     postOrderRemote(order)
 
-    let msg = `¡Hola! Vengo a hacer un pedido \u2728\n\n`
+    let msg = `¡Hola! Vengo a hacer un pedido!\n\n`
     msg += `Pedido #${orderId}${nombre ? ` — ${nombre}` : ''}\n\n`
     msg += `Me llevo:\n`
     items.forEach(item => {
@@ -66,7 +66,7 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     })
     msg += `\nTotal: ${formatPrice(total)}`
     if (notas) msg += `\n\nNotas: ${notas}`
-    msg += `\n\n¡Gracias! \uD83D\uDC8C`
+    msg += `\n\n¡Gracias!`
 
     // encodeURIComponent encodes emojis as %XX sequences that WhatsApp
     // sometimes renders as "?". Instead we encode only chars that break
