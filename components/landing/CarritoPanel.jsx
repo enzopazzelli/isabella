@@ -68,8 +68,19 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     if (notas) msg += `\n\nNotas: ${notas}`
     msg += `\n\n¡Gracias! \uD83D\uDC8C`
 
-    const encodedMsg = encodeURIComponent(msg)
-    window.location.href = `https://wa.me/${negocio.whatsapp}?text=${encodedMsg}`
+    // encodeURIComponent encodes emojis as %XX sequences that WhatsApp
+    // sometimes renders as "?". Instead we encode only chars that break
+    // URLs and leave all Unicode (emojis, accents) as raw characters.
+    const encodeForWA = (t) => t
+      .replace(/%/g, '%25')
+      .replace(/\n/g, '%0A')
+      .replace(/\r/g, '')
+      .replace(/#/g, '%23')
+      .replace(/&/g, '%26')
+      .replace(/\+/g, '%2B')
+      .replace(/=/g, '%3D')
+      .replace(/\?/g, '%3F')
+    window.location.href = `https://wa.me/${negocio.whatsapp}?text=${encodeForWA(msg)}`
 
     onClear()
     onClose()
