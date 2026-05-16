@@ -55,18 +55,18 @@ export default function CarritoPanel({ isOpen, onClose, items = [], onUpdateItem
     saveOrder(order)
     postOrderRemote(order)
 
-    let msg = `Hola! Quiero hacer un pedido:\n\n`
-    msg += `Pedido: ${orderId}\n`
-    if (nombre) msg += `Nombre: ${nombre}\n`
-    msg += `\n`
+    let msg = `¡Hola! Vengo a hacer un pedido ✨\n\n`
+    msg += `Pedido #${orderId}${nombre ? ` — ${nombre}` : ''}\n\n`
+    msg += `Me llevo:\n`
     items.forEach(item => {
       msg += `- ${item.nombre}`
-      if (item.color) msg += ` — ${item.color}`
-      if (item.talle && item.talle !== 'Unico') msg += ` (Talle: ${item.talle})`
-      msg += ` x${item.cantidad} — ${formatPrice(item.precio * item.cantidad)}\n`
+      if (item.color) msg += ` · ${item.color}`
+      if (item.talle && item.talle !== 'Unico') msg += ` · Talle ${item.talle}`
+      msg += ` · x${item.cantidad} — ${formatPrice(item.precio * item.cantidad)}\n`
     })
     msg += `\nTotal: ${formatPrice(total)}`
     if (notas) msg += `\n\nNotas: ${notas}`
+    msg += `\n\n¡Gracias! 💌`
 
     const encodedMsg = encodeURIComponent(msg)
     window.location.href = `https://wa.me/${negocio.whatsapp}?text=${encodedMsg}`
