@@ -361,8 +361,9 @@ export default function ProductoManager({ productos = [], marcas = [], onSave })
                   </label>
                   <input
                     type="text"
-                    value={(prod.talles || []).join(', ')}
-                    onChange={(e) => updateProducto(prod.id, 'talles', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
+                    key={prod.id + '_talles'}
+                    defaultValue={(prod.talles || []).join(', ')}
+                    onBlur={(e) => updateProducto(prod.id, 'talles', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
                     placeholder="S, M, L, XL"
                     className="w-full border border-border px-3 py-2 font-body text-sm outline-none focus:border-primary"
                   />
