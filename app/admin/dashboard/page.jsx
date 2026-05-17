@@ -66,20 +66,42 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!authed) return
-    // Load from store or API, then defaults
+
+    // Read localStorage first so we know what's cached locally
+    const localHero = getStoreItem('hero_slides')
+    const localCats = getStoreItem('category_blocks')
+    const localMarcas = getStoreItem('marcas')
+    const localBanners = getStoreItem('banners')
+    const localProductos = getStoreItem('productos')
+    const localTestimonios = getStoreItem('testimonios')
+    const localPromos = getStoreItem('promos')
+    const localInstagram = getStoreItem('instagram_photos')
+
+    // Set immediately from localStorage (fast path); use defaults as placeholder
+    setHeroSlides(localHero || defaultHeroSlides)
+    setCategoryBlocks(localCats || defaultCategoryBlocks)
+    setMarcas(localMarcas || defaultMarcas)
+    setBanners(localBanners || defaultBanners)
+    setProductos(localProductos || defaultProductos)
+    setTestimonios(localTestimonios || defaultTestimonios)
+    setPromos(localPromos || defaultPromos)
+    setInstagramPhotos(localInstagram || defaultInstagramPhotos)
+
+    // Fetch from Google Sheets via API and replace any entity that wasn't in localStorage
     fetch('/api/data')
       .then(r => r.json())
-      .then(d => setData(d))
+      .then(d => {
+        setData(d)
+        if (!localHero) setHeroSlides(d.heroSlides || defaultHeroSlides)
+        if (!localCats) setCategoryBlocks(d.categoryBlocks || defaultCategoryBlocks)
+        if (!localMarcas) setMarcas(d.marcas || defaultMarcas)
+        if (!localBanners) setBanners(d.banners || defaultBanners)
+        if (!localProductos) setProductos(d.productos || defaultProductos)
+        if (!localTestimonios) setTestimonios(d.testimonios || defaultTestimonios)
+        if (!localPromos) setPromos(d.promos || defaultPromos)
+        if (!localInstagram) setInstagramPhotos(d.instagramPhotos || defaultInstagramPhotos)
+      })
       .catch(() => {})
-
-    setHeroSlides(getStoreItem('hero_slides') || defaultHeroSlides)
-    setCategoryBlocks(getStoreItem('category_blocks') || defaultCategoryBlocks)
-    setMarcas(getStoreItem('marcas') || defaultMarcas)
-    setBanners(getStoreItem('banners') || defaultBanners)
-    setProductos(getStoreItem('productos') || defaultProductos)
-    setTestimonios(getStoreItem('testimonios') || defaultTestimonios)
-    setPromos(getStoreItem('promos') || defaultPromos)
-    setInstagramPhotos(getStoreItem('instagram_photos') || defaultInstagramPhotos)
   }, [authed])
 
   // Persist helpers: write to localStorage immediately (fast feedback)

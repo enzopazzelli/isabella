@@ -24,7 +24,7 @@ Todo funciona en celular, tablet y computadora.
 
 **Opción 1:** Abrí el sitio → bajá hasta el pie de página → tocá el ícono de engranaje ⚙️ que está al lado de "Todos los derechos reservados".
 
-**Opción 2:** Entrá directo a `tusitio.com/admin`.
+**Opción 2:** Entrá directo a `isabella-boutique.vercel.app/admin`.
 
 Ingresás tu contraseña y listo.
 
@@ -82,3 +82,5 @@ Las fotos que subís desde el panel se guardan solos en tu Google Drive, en carp
 ## Si algo no anda
 
 Primero fijate en el documento **SETUP-CLIENTA.md** — tiene una sección de troubleshooting con las causas y soluciones más comunes.
+ 
+ O mas facil, avisame a mi
